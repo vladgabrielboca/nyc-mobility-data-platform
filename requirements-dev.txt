@@ -1,3 +1,6 @@
 -e .
 pytest
 ruff
+requests
+psycopg[binary]
+pyarrow
