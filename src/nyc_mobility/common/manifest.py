@@ -1,5 +1,5 @@
 """
-    This file contains the functions for managing the ingestion manifest table in the database.
+This file contains the functions for managing the ingestion manifest table in the database.
 """
 
 
@@ -33,7 +33,9 @@ def start_ingestion_attempt(cursor, source: str, year: int, month: int) -> int:
     return cursor.fetchone()[0]
 
 
-def mark_ingestion_success(cursor, manifest_id: int, file_checksum: str, row_count: int) -> None:
+def mark_ingestion_success(
+    cursor, manifest_id: int, file_checksum: str, row_count: int
+) -> None:
     """
     Mark given ingestion with 'success' while adding file_checksum and row_count
     """

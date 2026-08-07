@@ -1,9 +1,9 @@
 import os
-import requests
+
 import pyarrow.parquet as pq
+import requests
 import src.nyc_mobility.common.manifest as manifest
-from src.nyc_mobility.common.utils import get_retry_session
-from src.nyc_mobility.common.utils import compute_checksum
+from src.nyc_mobility.common.utils import compute_checksum, get_retry_session
 
 """
 
@@ -16,6 +16,7 @@ from src.nyc_mobility.common.utils import compute_checksum
     https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{year}-{month:02d}.parquet
 
 """
+
 
 def build_taxi_url(year: int, month: int) -> str:
     return f"https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{year}-{month:02d}.parquet"

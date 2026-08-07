@@ -1,10 +1,11 @@
-import os
-import json
-import requests
 import calendar
-from src.nyc_mobility.common.utils import get_retry_session
+import json
+import os
+
+import requests
 import src.nyc_mobility.common.manifest as manifest
-from src.nyc_mobility.common.utils import compute_checksum
+from src.nyc_mobility.common.utils import compute_checksum, get_retry_session
+
 
 def find_start_end_month(year: int, month: int) -> tuple[str, str]:
     """Find the start and end month of the given year"""
@@ -20,24 +21,25 @@ def build_params(year: int, month: int) -> dict:
     """Build the params for the weather API."""
 
     start_date, end_date = find_start_end_month(year, month)
-    
+
     params = {
         "latitude": 40.71,
         "longitude": -74.01,
         "start_date": start_date,
         "end_date": end_date,
         "hourly": "temperature_2m,precipitation,windspeed_10m",
-        "timezone": "America/New_York"
+        "timezone": "America/New_York",
     }
 
     return params
 
 
-def count_rows(file_path: str) -> int: 
-    with open(file_path, "r", encoding='UTF-8') as file:
+def count_rows(file_path: str) -> int:
+    with open(file_path, encoding="UTF-8") as file:
         data = json.load(file)
 
     return len(data["hourly"]["time"])
+
 
 def download_weather_data(params: dict, dest_path: str) -> None:
     """Download the weather data from the Open-Meteo API."""
@@ -48,7 +50,11 @@ def download_weather_data(params: dict, dest_path: str) -> None:
 
     try:
         print("[LOG] Requesting weather data...")
-        response = session.get("https://archive-api.open-meteo.com/v1/archive", params=params, timeout=(5, 30))
+        response = session.get(
+            "https://archive-api.open-meteo.com/v1/archive",
+            params=params,
+            timeout=(5, 30),
+        )
 
         # Raise an exception if the request was unsuccessful
         response.raise_for_status()
@@ -57,7 +63,7 @@ def download_weather_data(params: dict, dest_path: str) -> None:
         data = response.json()
 
         print(f"[LOG] Saving data to: {dest_path} ...")
-        with open(dest_path, 'w', encoding='UTF-8') as file:
+        with open(dest_path, "w", encoding="UTF-8") as file:
             json.dump(data, file, indent=4, ensure_ascii=False)
 
         print("File has been succesfully downloaded!")

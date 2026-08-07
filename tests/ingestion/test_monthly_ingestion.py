@@ -1,7 +1,9 @@
 # tests/ingestion/test_monthly_ingestion.py
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from src.nyc_mobility.orchestration.monthly import run_monthly_ingestion
+
 
 @patch("src.nyc_mobility.orchestration.monthly.ingest_taxi_month")
 @patch("src.nyc_mobility.orchestration.monthly.ingest_weather_month")
@@ -13,7 +15,9 @@ def test_monthly_ingestion_success(mock_pipeline, mock_weather, mock_taxi):
     mock_pipeline.start_pipeline_run.return_value = 42
     run_monthly_ingestion(mock_cursor, year, month)
 
-    mock_pipeline.start_pipeline_run.assert_called_once_with(mock_cursor, "monthly_ingestion", year, month)
+    mock_pipeline.start_pipeline_run.assert_called_once_with(
+        mock_cursor, "monthly_ingestion", year, month
+    )
 
     mock_taxi.assert_called_once_with(mock_cursor, year, month)
     mock_weather.assert_called_once_with(mock_cursor, year, month)

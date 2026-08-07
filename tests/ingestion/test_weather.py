@@ -1,10 +1,10 @@
 # tests/ingestion/test_weather.py
 
+
 def test_download_weather_data(tmp_path):
     print("[LOG] Starting download...")
 
-    from nyc_mobility.ingestion.weather import build_params
-    from nyc_mobility.ingestion.weather import download_weather_data
+    from nyc_mobility.ingestion.weather import build_params, download_weather_data
 
     dest = tmp_path / "test_weather.json"
 
