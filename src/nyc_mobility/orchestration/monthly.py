@@ -1,6 +1,6 @@
-import src.nyc_mobility.common.pipeline as pipeline
-from src.nyc_mobility.ingestion.taxi import ingest_taxi_month
-from src.nyc_mobility.ingestion.weather import ingest_weather_month
+import nyc_mobility.common.pipeline as pipeline
+from nyc_mobility.ingestion.taxi import ingest_taxi_month
+from nyc_mobility.ingestion.weather import ingest_weather_month
 
 
 def run_monthly_ingestion(cursor, year: int, month: int) -> None:

@@ -2,8 +2,9 @@ import os
 
 import pyarrow.parquet as pq
 import requests
-import src.nyc_mobility.common.manifest as manifest
-from src.nyc_mobility.common.utils import compute_checksum, get_retry_session
+
+import nyc_mobility.common.manifest as manifest
+from nyc_mobility.common.utils import compute_checksum, get_retry_session
 
 """
 

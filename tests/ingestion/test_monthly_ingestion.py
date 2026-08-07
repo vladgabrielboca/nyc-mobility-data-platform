@@ -2,12 +2,12 @@
 
 from unittest.mock import MagicMock, patch
 
-from src.nyc_mobility.orchestration.monthly import run_monthly_ingestion
+from nyc_mobility.orchestration.monthly import run_monthly_ingestion
 
 
-@patch("src.nyc_mobility.orchestration.monthly.ingest_taxi_month")
-@patch("src.nyc_mobility.orchestration.monthly.ingest_weather_month")
-@patch("src.nyc_mobility.orchestration.monthly.pipeline")
+@patch("nyc_mobility.orchestration.monthly.ingest_taxi_month")
+@patch("nyc_mobility.orchestration.monthly.ingest_weather_month")
+@patch("nyc_mobility.orchestration.monthly.pipeline")
 def test_monthly_ingestion_success(mock_pipeline, mock_weather, mock_taxi):
     mock_cursor = MagicMock()
     year, month = 2023, 1
@@ -27,9 +27,9 @@ def test_monthly_ingestion_success(mock_pipeline, mock_weather, mock_taxi):
     mock_pipeline.mark_pipeline_run_failure.assert_not_called()
 
 
-@patch("src.nyc_mobility.orchestration.monthly.ingest_taxi_month")
-@patch("src.nyc_mobility.orchestration.monthly.ingest_weather_month")
-@patch("src.nyc_mobility.orchestration.monthly.pipeline")
+@patch("nyc_mobility.orchestration.monthly.ingest_taxi_month")
+@patch("nyc_mobility.orchestration.monthly.ingest_weather_month")
+@patch("nyc_mobility.orchestration.monthly.pipeline")
 def test_monthly_ingestion_failure(mock_pipeline, mock_weather, mock_taxi):
     mock_cursor = MagicMock()
     year, month = 2023, 1
