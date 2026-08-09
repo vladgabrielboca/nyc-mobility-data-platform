@@ -3,14 +3,17 @@ CREATE TABLE IF NOT EXISTS ops.ingestion_manifest (
     source TEXT NOT NULL,    -- 'taxi' sau 'weather'
     year INT NOT NULL,
     month INT NOT NULL,
-    file_checksum,
+    file_checksum TEXT,
     row_count INT,
     status TEXT NOT NULL,  -- 'pending' | 'success' | 'failed'
     started_at TIMESTAMPTZ DEFAULT now(),
     finished_at TIMESTAMPTZ,
-    error_message TEXT,
-    UNIQUE (source, year, month, file_checksum)
+    error_message TEXT
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_successful_ingestion
+ON ops.ingestion_manifest (source, year, month)
+WHERE status = 'success';
 
 CREATE TABLE IF NOT EXISTS ops.pipeline_runs (
     id SERIAL PRIMARY KEY,
