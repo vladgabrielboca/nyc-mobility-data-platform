@@ -2,6 +2,8 @@
 
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from nyc_mobility.orchestration.monthly import run_monthly_ingestion
 
 
@@ -13,6 +15,7 @@ def test_monthly_ingestion_success(mock_pipeline, mock_weather, mock_taxi):
     year, month = 2023, 1
 
     mock_pipeline.start_pipeline_run.return_value = 42
+
     run_monthly_ingestion(mock_cursor, year, month)
 
     mock_pipeline.start_pipeline_run.assert_called_once_with(
@@ -37,7 +40,8 @@ def test_monthly_ingestion_failure(mock_pipeline, mock_weather, mock_taxi):
 
     mock_taxi.side_effect = Exception("The taxi API is down!")
 
-    run_monthly_ingestion(mock_cursor, year, month)
+    with pytest.raises(Exception, match="The taxi API is down!"):
+        run_monthly_ingestion(mock_cursor, year, month)
 
     mock_pipeline.mark_pipeline_run_failure.assert_called_once_with(mock_cursor, 99)
 

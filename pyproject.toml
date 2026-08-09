@@ -11,6 +11,9 @@ requires-python = ">=3.11"
 
 [tools.pytest.ini_options]
 where = ["src"]
+markers = [
+    "integration: hits live external endpoints (deselect with '-m not integration')",
+]
 
 [tool.ruff]
 target-version = "py311"
