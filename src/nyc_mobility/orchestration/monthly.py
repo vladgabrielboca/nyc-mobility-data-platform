@@ -17,3 +17,4 @@ def run_monthly_ingestion(cursor, year: int, month: int) -> None:
     except Exception as e:
         pipeline.mark_pipeline_run_failure(cursor, run_id)
         print(f"[LOG] Monthly ingestion for {year}-{month} failed to complete: {e}")
+        raise

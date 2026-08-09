@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS ops.ingestion_manifest (
     source TEXT NOT NULL,    -- 'taxi' sau 'weather'
     year INT NOT NULL,
     month INT NOT NULL,
-    file_checksum TEXT NOT NULL,
+    file_checksum,
     row_count INT,
     status TEXT NOT NULL,  -- 'pending' | 'success' | 'failed'
     started_at TIMESTAMPTZ DEFAULT now(),

@@ -9,7 +9,7 @@ from nyc_mobility.common.utils import compute_checksum, get_retry_session
 """
 
     To build the correct URL, take this as an example:
-    
+
     https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2026-01.parquet
 
     The above example retrieves the data for january 2026, so as a string it would be:
@@ -44,7 +44,7 @@ def download_taxi_file(year: int, month: int, dest_path: str) -> None:
         # throw an error if HTTP status is not: 200 OK
         response.raise_for_status()
 
-        print("[LOG] Saving data to: {dest_path} ...")
+        print(f"[LOG] Saving data to: {dest_path} ...")
         with open(dest_path, "wb") as file:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:

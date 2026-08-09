@@ -23,7 +23,6 @@ def test_monthly_ingestion_success(mock_pipeline, mock_weather, mock_taxi):
     mock_weather.assert_called_once_with(mock_cursor, year, month)
 
     mock_pipeline.mark_pipeline_run_success.assert_called_once_with(mock_cursor, 42)
-
     mock_pipeline.mark_pipeline_run_failure.assert_not_called()
 
 
