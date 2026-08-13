@@ -7,10 +7,14 @@ import pytest
 from nyc_mobility.orchestration.monthly import run_monthly_ingestion
 
 
+@patch("nyc_mobility.orchestration.monthly.load_taxi_data_idempotent")
+@patch("nyc_mobility.orchestration.monthly.load_weather_data_idempotent")
 @patch("nyc_mobility.orchestration.monthly.ingest_taxi_month")
 @patch("nyc_mobility.orchestration.monthly.ingest_weather_month")
 @patch("nyc_mobility.orchestration.monthly.pipeline")
-def test_monthly_ingestion_success(mock_pipeline, mock_weather, mock_taxi):
+def test_monthly_ingestion_success(
+    mock_pipeline, mock_weather, mock_taxi, mock_load_weather, mock_load_taxi
+):
     mock_cursor = MagicMock()
     year, month = 2023, 1
 

@@ -4,3 +4,5 @@ ruff
 requests
 psycopg[binary]
 pyarrow
+dotenv
+pandas

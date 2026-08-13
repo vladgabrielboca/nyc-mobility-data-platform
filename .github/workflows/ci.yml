@@ -9,18 +9,52 @@ on:
 jobs:
   python-checks:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: nyc_mobility_user
+          POSTGRES_PASSWORD: nyc_mobility_password
+          POSTGRES_DB: nyc_mobility
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U nyc_mobility_user"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_USER: nyc_mobility_user
+      POSTGRES_PASSWORD: nyc_mobility_password
+      POSTGRES_DB: nyc_mobility
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-        
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
+
+      - name: Init database
+        run: |
+          psql -h localhost -U nyc_mobility_user -d nyc_mobility -f infra/sql/01_schemas.sql
+          psql -h localhost -U nyc_mobility_user -d nyc_mobility -f infra/sql/02_ops_tables.sql
+          psql -h localhost -U nyc_mobility_user -d nyc_mobility -f infra/sql/03_raw_tables.sql
+        env:
+          PGPASSWORD: nyc_mobility_password
+
+      - name: Create test fixtures
+        run: python ci/create_test_fixtures.py
 
       - name: Lint with Ruff
         run: |
@@ -29,6 +63,6 @@ jobs:
       - name: Check formatting with Ruff
         run: |
           ruff format --check .
-          
+
       - name: Run tests
         run: pytest
