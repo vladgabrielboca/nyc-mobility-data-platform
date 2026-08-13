@@ -36,7 +36,7 @@ def make_taxi_fixture(year=2023, month=1):
 
 
 def make_weather_fixture(year=2023, month=1):
-    out = Path(f"data/raw/weather/year={year}/month={month:02d}/weather.parquet")
+    out = Path(f"data/raw/weather/year={year}/month={month:02d}/weather.json")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(
         json.dumps(
