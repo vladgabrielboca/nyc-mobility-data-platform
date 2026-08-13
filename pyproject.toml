@@ -9,8 +9,8 @@ description = "Batch data platform for NYC taxi and weather analytics."
 readme = "README.md"
 requires-python = ">=3.11"
 
-[tools.pytest.ini_options]
-where = ["src"]
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
 markers = [
     "integration: hits live external endpoints (deselect with '-m not integration')",
 ]
