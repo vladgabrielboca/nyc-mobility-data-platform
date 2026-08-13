@@ -1,24 +1,26 @@
-from unittest.mock import MagicMock, patch
-
-import pandas as pd
 import pytest
 
-from nyc_mobility.loaders.weather import transform_weather_data
-from nyc_mobility.loaders.weather import load_weather_data_idempotent
 from nyc_mobility.common.db import get_connection
+from nyc_mobility.loaders.weather import (
+    load_weather_data_idempotent,
+    transform_weather_data,
+)
+
 
 def test_transform_weather_data():
     mock_df_data = {
         "time": ["2023-01-01 00:00:00", "2023-01-01 01:00:00"],
         "temperature_2m": [10.5, 11.2],
         "precipitation": [0.0, 0.0],
-        "windspeed_10m": [5.0, 6.0]
+        "windspeed_10m": [5.0, 6.0],
     }
 
     year, month = 2023, 1
     result = transform_weather_data(mock_df_data, year, month)
     expected_csv = "2023-01-01 00:00:00,10.5,0.0,5.0,2023,1\n2023-01-01 01:00:00,11.2,0.0,6.0,2023,1\n"
-    assert result == expected_csv, f"Expected CSV:\n{expected_csv}\nActual CSV:\n{result}"
+    assert result == expected_csv, (
+        f"Expected CSV:\n{expected_csv}\nActual CSV:\n{result}"
+    )
 
 
 def count_rows(source_year: int, source_month: int) -> int:
@@ -44,7 +46,7 @@ def clean_weather():
         with conn.cursor() as cur:
             cur.execute(
                 "DELETE FROM raw.weather_hourly WHERE source_year = %s AND source_month = %s",
-                (2023, 1)
+                (2023, 1),
             )
 
 

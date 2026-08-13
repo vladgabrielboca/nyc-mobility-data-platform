@@ -4,6 +4,7 @@ from nyc_mobility.ingestion.weather import ingest_weather_month
 from nyc_mobility.loaders.taxi import load_taxi_data_idempotent
 from nyc_mobility.loaders.weather import load_weather_data_idempotent
 
+
 def run_monthly_ingestion(cursor, year: int, month: int) -> None:
     """Run the full ingestion: taxi + weather, wrapped in a pipeline run."""
 

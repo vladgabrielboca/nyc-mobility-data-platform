@@ -1,6 +1,6 @@
-import pandas as pd
-
 from json import load as json_load
+
+import pandas as pd
 
 from nyc_mobility.common.db import get_connection
 
@@ -31,7 +31,7 @@ def load_weather_data_idempotent(year: int, month: int) -> None:
     path = f"data/raw/weather/year={year}/month={month:02d}/weather.json"
 
     print("[LOG] Opening JSON file...")
-    with open(path, "r") as file:
+    with open(path) as file:
         print("[LOG] Reading JSON file...")
         data = json_load(file)
         data = data["hourly"]

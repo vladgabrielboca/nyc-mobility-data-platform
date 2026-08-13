@@ -1,6 +1,8 @@
-from pathlib import Path
 import json
+from pathlib import Path
+
 import pandas as pd
+
 
 def make_taxi_fixture(year=2023, month=1):
     out = Path(f"data/raw/taxi/year={year}/month={month:02d}/trips.parquet")
@@ -26,7 +28,7 @@ def make_taxi_fixture(year=2023, month=1):
             "improvement_surcharge": [1.0, 1.0],
             "total_amount": [14.0, 25.0],
             "congestion_surcharge": [2.5, 2.5],
-            "airport_fee": [0.0, 0.0]
+            "airport_fee": [0.0, 0.0],
         }
     )
 
@@ -36,14 +38,18 @@ def make_taxi_fixture(year=2023, month=1):
 def make_weather_fixture(year=2023, month=1):
     out = Path(f"data/raw/weather/year={year}/month={month:02d}/weather.parquet")
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps({
-        "hourly": {
-            "time": ["2023-01-01 00:00:00", "2023-01-01 01:00:00"],
-            "temperature_2m": [10.5, 11.2],
-            "precipitation": [0.0, 0.0],
-            "windspeed_10m": [5.0, 6.0]
-        }
-    }))
+    out.write_text(
+        json.dumps(
+            {
+                "hourly": {
+                    "time": ["2023-01-01 00:00:00", "2023-01-01 01:00:00"],
+                    "temperature_2m": [10.5, 11.2],
+                    "precipitation": [0.0, 0.0],
+                    "windspeed_10m": [5.0, 6.0],
+                }
+            }
+        )
+    )
 
 
 if __name__ == "__main__":
