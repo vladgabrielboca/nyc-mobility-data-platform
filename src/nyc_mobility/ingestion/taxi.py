@@ -5,6 +5,7 @@ import requests
 
 import nyc_mobility.common.manifest as manifest
 from nyc_mobility.common.utils import compute_checksum, get_retry_session
+from nyc_mobility.validation.schema import validate_taxi_schema
 
 """
 
@@ -67,7 +68,9 @@ def ingest_taxi_month(cursor, year: int, month: int) -> None:
 
     try:
         dest_path = f"data/raw/taxi/year={year}/month={month:02d}/trips.parquet"
+
         download_taxi_file(year, month, dest_path)
+        validate_taxi_schema(dest_path)
 
         checksum = compute_checksum(dest_path)
         row_count = count_rows(dest_path)

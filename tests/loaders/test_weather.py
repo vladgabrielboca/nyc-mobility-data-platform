@@ -24,7 +24,7 @@ def test_transform_weather_data():
 
 
 def count_rows(source_year: int, source_month: int) -> int:
-    """Helper: numără rândurile pentru o lună anume din raw.yellow_taxi_trips."""
+    """Helper: count rows for a specific row from raw.yellow_taxi_trips."""
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
