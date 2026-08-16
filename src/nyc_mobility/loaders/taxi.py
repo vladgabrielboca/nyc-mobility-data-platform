@@ -1,6 +1,7 @@
 import pyarrow.parquet as pq
 
 from nyc_mobility.common.db import get_connection
+from nyc_mobility.validation.rules import split_valid_rejected
 
 TAXI_COLUMN_MAPPING = {
     "VendorID": "vendor_id",
@@ -51,13 +52,6 @@ postgres_columns = [
 
 def transform_taxi_batch(batch, year: int, month: int):
     """Pure: Arrow batch -> rows with stamped medatadata. No DB."""
-
-    # Convert Arrow batch to Pandas DataFrame
-    batch = batch.to_pandas()
-
-    # Rename columns to match PostgreSQL table
-    batch = batch.rename(columns=TAXI_COLUMN_MAPPING)
-
     # Add source_year and source_month columns
     batch["source_year"] = year
     batch["source_month"] = month
@@ -94,14 +88,25 @@ def load_taxi_data_idempotent(year: int, month: int) -> None:
             print("[LOG] Initiating stream COPY in Postgres...")
             copy_sql = f"COPY raw.yellow_taxi_trips ({columns_str}) FROM STDIN WITH (FORMAT csv, HEADER false, DELIMITER ',')"
 
+            counts = {}
+            rejected_rows = []
+
             with cur.copy(copy_sql) as copy:  # type: ignore
                 for i in range(parquet_file.num_row_groups):
                     print(
                         f"[LOG] Processing row group {i + 1} of {parquet_file.num_row_groups}..."
                     )
+                    batch = parquet_file.read_row_groups([i]).to_pandas()
 
-                    batch = parquet_file.read_row_groups([i])
-                    csv_batch = transform_taxi_batch(batch, year, month)
+                    # Rename columns to match PostgreSQL table
+                    batch = batch.rename(columns=TAXI_COLUMN_MAPPING)
+
+                    valid, rejected, batch_counts = split_valid_rejected(batch)
+                    for rule_name, n in batch_counts.items():
+                        counts[rule_name] = counts.get(rule_name, 0) + n
+                    rejected_rows.append(rejected)
+
+                    csv_batch = transform_taxi_batch(valid, year, month)
                     copy.write(csv_batch)
 
         print(f"[LOG] Transaction completed successfully for {year}-{month:02d}!")
