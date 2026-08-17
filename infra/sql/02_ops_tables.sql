@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS ops.ingestion_manifest (
     id SERIAL PRIMARY KEY,
-    source TEXT NOT NULL,    -- 'taxi' sau 'weather'
+    source TEXT NOT NULL,    -- 'taxi' or 'weather'
     year INT NOT NULL,
     month INT NOT NULL,
     file_checksum TEXT,
@@ -23,4 +23,14 @@ CREATE TABLE IF NOT EXISTS ops.pipeline_runs (
     status TEXT NOT NULL,  -- 'pending' | 'success' | 'failed'
     started_at TIMESTAMPTZ DEFAULT now(),
     finished_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS ops.data_quality_results (
+    id SERIAL PRIMARY KEY,
+    source TEXT NOT NULL,
+    year INT NOT NULL,
+    month INT NOT NULL,
+    rule_name TEXT NOT NULL,
+    rejected_count INT NOT NULL,
+    checked_at TIMESTAMPTZ DEFAULT now()
 );

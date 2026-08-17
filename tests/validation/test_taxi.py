@@ -1,9 +1,10 @@
-import json
 from datetime import datetime
-from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+import pytest
+
+from nyc_mobility.validation.schema import validate_taxi_schema
 
 TAXI_DATA = {
     "VendorID": [1, 2],
@@ -52,43 +53,34 @@ TAXI_SCHEMA = pa.schema(
 )
 
 
-def make_taxi_fixture(year=2023, month=1):
-    out = Path(f"data/raw/taxi/year={year}/month={month:02d}/trips.parquet")
-    out.parent.mkdir(parents=True, exist_ok=True)
+def write_taxi_parquet(table, dir_, filename):
+    pq.write_table(table, dir_ / filename)
+
+
+def test_happy_path(tmp_path):
     table = pa.Table.from_pydict(TAXI_DATA, schema=TAXI_SCHEMA)
-    pq.write_table(table, out)
+    write_taxi_parquet(table, tmp_path, "good.parquet")
+
+    validate_taxi_schema(tmp_path / "good.parquet")
 
 
-def make_weather_fixture(year=2023, month=1):
-    out = Path(f"data/raw/weather/year={year}/month={month:02d}/weather.json")
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(
-        json.dumps(
-            {
-                "latitude": 40.738136,
-                "longitude": -74.04254,
-                "generationtime_ms": 42.62518882751465,
-                "utc_offset_seconds": -14400,
-                "timezone": "America/New_York",
-                "timezone_abbreviation": "GMT-4",
-                "elevation": 27.0,
-                "hourly_units": {
-                    "time": "iso8601",
-                    "temperature_2m": "°C",
-                    "precipitation": "mm",
-                    "windspeed_10m": "km/h",
-                },
-                "hourly": {
-                    "time": ["2023-01-01 00:00:00", "2023-01-01 01:00:00"],
-                    "temperature_2m": [10.5, 11.2],
-                    "precipitation": [0.0, 0.0],
-                    "windspeed_10m": [5.0, 6.0],
-                },
-            }
-        )
+def test_missing_column(tmp_path):
+    table = pa.Table.from_pydict(TAXI_DATA, schema=TAXI_SCHEMA).drop(["VendorID"])
+    write_taxi_parquet(table, tmp_path, "missing.parquet")
+
+    with pytest.raises(ValueError, match="VendorID"):
+        validate_taxi_schema(tmp_path / "missing.parquet")
+
+
+def test_wrong_type(tmp_path):
+    wrong_type_schema = pa.schema(
+        [
+            field.with_type(pa.int64()) if field.name == "fare_amount" else field
+            for field in TAXI_SCHEMA
+        ]
     )
+    table = pa.Table.from_pydict(TAXI_DATA, schema=wrong_type_schema)
+    write_taxi_parquet(table, tmp_path, "wrong_type.parquet")
 
-
-if __name__ == "__main__":
-    make_taxi_fixture()
-    make_weather_fixture()
+    with pytest.raises(ValueError, match="fare_amount"):
+        validate_taxi_schema(tmp_path / "wrong_type.parquet")

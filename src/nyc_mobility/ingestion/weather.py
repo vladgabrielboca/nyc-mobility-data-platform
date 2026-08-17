@@ -1,14 +1,16 @@
 import calendar
 import json
 import os
+from typing import Any
 
 import requests
 
 import nyc_mobility.common.manifest as manifest
 from nyc_mobility.common.utils import compute_checksum, get_retry_session
+from nyc_mobility.validation.schema import validate_weather_schema
 
 
-def find_start_end_month(year: int, month: int) -> tuple[str, str]:
+def find_start_end_month(year: int, month: int) -> tuple[str, Any]:
     """Find the start and end month of the given year"""
     _, last_day = calendar.monthrange(year, month)
 
@@ -18,7 +20,7 @@ def find_start_end_month(year: int, month: int) -> tuple[str, str]:
     return start_date, end_date
 
 
-def build_params(year: int, month: int) -> dict:
+def build_params(year: int, month: int) -> dict[str, Any]:
     """Build the params for the weather API."""
 
     start_date, end_date = find_start_end_month(year, month)
@@ -42,7 +44,7 @@ def count_rows(file_path: str) -> int:
     return len(data["hourly"]["time"])
 
 
-def download_weather_data(params: dict, dest_path: str) -> None:
+def download_weather_data(params: dict[str, Any], dest_path: str) -> None:
     """Download the weather data from the Open-Meteo API."""
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
@@ -86,7 +88,9 @@ def ingest_weather_month(cursor, year: int, month: int) -> None:
     try:
         dest_path = f"data/raw/weather/year={year}/month={month:02d}/weather.json"
         params = build_params(year, month)
+
         download_weather_data(params, dest_path)
+        validate_weather_schema(dest_path)
 
         checksum = compute_checksum(dest_path)
         row_count = count_rows(dest_path)

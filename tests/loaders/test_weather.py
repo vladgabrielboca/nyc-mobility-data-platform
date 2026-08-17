@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 
 from nyc_mobility.common.db import get_connection
@@ -8,12 +9,15 @@ from nyc_mobility.loaders.weather import (
 
 
 def test_transform_weather_data():
-    mock_df_data = {
-        "time": ["2023-01-01 00:00:00", "2023-01-01 01:00:00"],
-        "temperature_2m": [10.5, 11.2],
-        "precipitation": [0.0, 0.0],
-        "windspeed_10m": [5.0, 6.0],
-    }
+    # transform_weather_data expects a pandas DataFrame, like the loader passes
+    mock_df_data = pd.DataFrame(
+        {
+            "time": ["2023-01-01 00:00:00", "2023-01-01 01:00:00"],
+            "temperature_2m": [10.5, 11.2],
+            "precipitation": [0.0, 0.0],
+            "windspeed_10m": [5.0, 6.0],
+        }
+    )
 
     year, month = 2023, 1
     result = transform_weather_data(mock_df_data, year, month)
@@ -24,7 +28,7 @@ def test_transform_weather_data():
 
 
 def count_rows(source_year: int, source_month: int) -> int:
-    """Helper: numără rândurile pentru o lună anume din raw.yellow_taxi_trips."""
+    """Helper: count rows for a specific row from raw.yellow_taxi_trips."""
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(

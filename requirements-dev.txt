@@ -6,3 +6,4 @@ psycopg[binary]
 pyarrow
 dotenv
 pandas
+jsonschema
