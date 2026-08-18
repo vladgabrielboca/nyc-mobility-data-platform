@@ -1,4 +1,6 @@
+import calendar
 import hashlib
+from typing import Any
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -29,3 +31,13 @@ def compute_checksum(file_path: str) -> str:
 
     checksum = digest_object.hexdigest()
     return checksum
+
+
+def find_start_end_month(year: int, month: int) -> tuple[str, Any]:
+    """Find the start and end month of the given year"""
+    _, last_day = calendar.monthrange(year, month)
+
+    start_date = f"{year}-{month:02d}-01"
+    end_date = f"{year}-{month:02d}-{last_day}"
+
+    return start_date, end_date

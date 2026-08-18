@@ -60,7 +60,8 @@ def transform_taxi_batch(batch, year: int, month: int):
     batch["source_month"] = month
 
     # Align columns with the order in the COPY statement
-    batch = batch[postgres_columns]
+    # batch = batch[postgres_columns]
+    batch = batch.reindex(columns=postgres_columns)
     return batch.to_csv(index=False, header=False, na_rep="")
 
 
