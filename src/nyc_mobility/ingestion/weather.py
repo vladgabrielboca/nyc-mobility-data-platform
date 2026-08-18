@@ -1,4 +1,3 @@
-import calendar
 import json
 import os
 from typing import Any
@@ -6,18 +5,12 @@ from typing import Any
 import requests
 
 import nyc_mobility.common.manifest as manifest
-from nyc_mobility.common.utils import compute_checksum, get_retry_session
+from nyc_mobility.common.utils import (
+    compute_checksum,
+    find_start_end_month,
+    get_retry_session,
+)
 from nyc_mobility.validation.schema import validate_weather_schema
-
-
-def find_start_end_month(year: int, month: int) -> tuple[str, Any]:
-    """Find the start and end month of the given year"""
-    _, last_day = calendar.monthrange(year, month)
-
-    start_date = f"{year}-{month:02d}-01"
-    end_date = f"{year}-{month:02d}-{last_day}"
-
-    return start_date, end_date
 
 
 def build_params(year: int, month: int) -> dict[str, Any]:

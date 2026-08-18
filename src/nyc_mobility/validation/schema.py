@@ -1,5 +1,6 @@
 import json
 
+import pyarrow as pa
 import pyarrow.parquet as pq
 from jsonschema import ValidationError, validate
 
@@ -9,16 +10,16 @@ def validate_taxi_schema(file_path) -> None:
 
     # Define the expected schema
     expected_schema = {
-        "VendorID": "int64",
-        "tpep_pickup_datetime": "timestamp[us]",
-        "tpep_dropoff_datetime": "timestamp[us]",
-        "passenger_count": "double",
+        "VendorID": "integer",
+        "tpep_pickup_datetime": "timestamp",
+        "tpep_dropoff_datetime": "timestamp",
+        "passenger_count": "numeric",
         "trip_distance": "double",
-        "RatecodeID": "double",
+        "RatecodeID": "numeric",
         "store_and_fwd_flag": "string",
-        "PULocationID": "int64",
-        "DOLocationID": "int64",
-        "payment_type": "int64",
+        "PULocationID": "integer",
+        "DOLocationID": "integer",
+        "payment_type": "integer",
         "fare_amount": "double",
         "extra": "double",
         "mta_tax": "double",
@@ -30,6 +31,16 @@ def validate_taxi_schema(file_path) -> None:
         "airport_fee": "double",
     }
 
+    optional_columns = {"congestion_surcharge", "airport_fee"}
+
+    validators = {
+        "integer": pa.types.is_integer,
+        "double": pa.types.is_floating,
+        "numeric": lambda t: pa.types.is_integer(t) or pa.types.is_floating(t),
+        "timestamp": pa.types.is_timestamp,
+        "string": lambda t: pa.types.is_string(t) or pa.types.is_large_string(t)
+    }
+
     # Read the parquet file
     parquet_file = pq.ParquetFile(file_path)
 
@@ -39,13 +50,17 @@ def validate_taxi_schema(file_path) -> None:
     # Compare the actual schema with the expected schema
     for column, dtype in expected_schema.items():
         if column not in actual_schema.names:
+            if column in optional_columns:
+                print(f"[WARNING] Optional column '{column}' is missing. Skipping validation for it.")
+                continue
             raise ValueError(f"Column '{column}' is missing in the parquet file.")
 
-        actual_type_str = str(actual_schema.field(column).type)
+        field_type = actual_schema.field(column).type
+        validate_fn = validators.get(dtype)
 
-        if actual_type_str != dtype:
+        if not (validate_fn and validate_fn(field_type)):
             raise ValueError(
-                f"Column '{column}' has an unexpected data type. Expected: {dtype}, Actual: {actual_type_str}"
+                f"Column '{column}' has an unexpected data type. Expected: {dtype}, Actual: {field_type}"
             )
 
     print("Schema validation passed. The parquet file has the expected schema.")

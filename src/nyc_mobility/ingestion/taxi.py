@@ -51,7 +51,7 @@ def download_taxi_file(year: int, month: int, dest_path: str) -> None:
                 if chunk:
                     file.write(chunk)
 
-        print(f"File for {year}-{month} has been succesfully downloaded!")
+        print(f"File for {year}-{month:02d} has been succesfully downloaded!")
     except requests.exceptions.RequestException as e:
         print(f"Error while downloading the file: {e}")
         raise
