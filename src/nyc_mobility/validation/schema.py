@@ -38,7 +38,7 @@ def validate_taxi_schema(file_path) -> None:
         "double": pa.types.is_floating,
         "numeric": lambda t: pa.types.is_integer(t) or pa.types.is_floating(t),
         "timestamp": pa.types.is_timestamp,
-        "string": lambda t: pa.types.is_string(t) or pa.types.is_large_string(t)
+        "string": lambda t: pa.types.is_string(t) or pa.types.is_large_string(t),
     }
 
     # Read the parquet file
@@ -51,7 +51,9 @@ def validate_taxi_schema(file_path) -> None:
     for column, dtype in expected_schema.items():
         if column not in actual_schema.names:
             if column in optional_columns:
-                print(f"[WARNING] Optional column '{column}' is missing. Skipping validation for it.")
+                print(
+                    f"[WARNING] Optional column '{column}' is missing. Skipping validation for it."
+                )
                 continue
             raise ValueError(f"Column '{column}' is missing in the parquet file.")
 
