@@ -121,7 +121,7 @@ data/quarantine/    rejected rows, same partitioning (gitignored)
 - [x] DE-003: raw loaders with streaming COPY and idempotent months
 - [x] DE-004: schema contracts, row-level rules, quarantine, quality results
 - [x] DE-005: backfill runner with failure isolation
-- [ ] DE-006: dbt models, staging to core to marts
+- [x] DE-006: dbt models, staging to core to marts
 - [ ] Airflow orchestration of the monthly flow
 - [ ] Power BI dashboard
 
