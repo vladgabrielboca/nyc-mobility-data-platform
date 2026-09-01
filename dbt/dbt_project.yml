@@ -37,5 +37,10 @@ models:
       +materialized: view
     core:
       +schema: core
+      +materialized: table
     marts:
       +schema: marts
+
+seeds:
+  mobility_analytics:
+    +schema: raw
