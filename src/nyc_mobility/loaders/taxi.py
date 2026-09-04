@@ -105,7 +105,9 @@ def load_taxi_data_idempotent(year: int, month: int) -> None:
                     # Rename columns to match PostgreSQL table
                     batch = batch.rename(columns=TAXI_COLUMN_MAPPING)
 
-                    valid, rejected, batch_counts = split_valid_rejected(batch, year, month)
+                    valid, rejected, batch_counts = split_valid_rejected(
+                        batch, year, month
+                    )
                     for rule_name, n in batch_counts.items():
                         counts[rule_name] = counts.get(rule_name, 0) + n
                     rejected_rows.append(rejected)

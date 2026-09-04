@@ -34,12 +34,9 @@ def split_valid_rejected(batch, year=None, month=None, rules=TAXI_RULES):
     if "pickup_datetime" in batch.columns:
         if year is not None and month is not None:
             y, m = int(year), int(month)
-            active_rules["pickup_in_source_month"] = (
-                lambda df, y=y, m=m: (
-                    df["pickup_datetime"].dt.year == y
-                ) & (
-                    df["pickup_datetime"].dt.month == m
-                )
+            active_rules["pickup_in_source_month"] = lambda df, y=y, m=m: (
+                (df["pickup_datetime"].dt.year == y)
+                & (df["pickup_datetime"].dt.month == m)
             )
 
     # Evaluate all rules at once, then count violations per rule.
