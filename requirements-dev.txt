@@ -7,3 +7,5 @@ pyarrow
 dotenv
 pandas
 jsonschema
+dbt-core
+dbt-postgres

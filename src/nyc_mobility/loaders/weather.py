@@ -63,7 +63,7 @@ def load_weather_data_idempotent(year: int, month: int) -> None:
 
             with cur.copy(copy_sql) as copy:  # type: ignore
                 valid, rejected, batch_counts = split_valid_rejected(
-                    data, WEATHER_RULES
+                    data, year, month, WEATHER_RULES
                 )
                 for rule_name, n in batch_counts.items():
                     counts[rule_name] = counts.get(rule_name, 0) + n

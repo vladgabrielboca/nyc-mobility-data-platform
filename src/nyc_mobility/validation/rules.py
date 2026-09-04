@@ -27,10 +27,20 @@ WEATHER_RULES = {
 }
 
 
-def split_valid_rejected(batch, rules=TAXI_RULES):
+def split_valid_rejected(batch, year=None, month=None, rules=TAXI_RULES):
     """Split a batch into (valid, rejected, {rule_name: violations in this batch})."""
+    active_rules = dict(rules)
 
-    rule_results = pd.DataFrame({name: fn(batch) for name, fn in rules.items()})
+    if "pickup_datetime" in batch.columns:
+        if year is not None and month is not None:
+            y, m = int(year), int(month)
+            active_rules["pickup_in_source_month"] = lambda df, y=y, m=m: (
+                (df["pickup_datetime"].dt.year == y)
+                & (df["pickup_datetime"].dt.month == m)
+            )
+
+    # Evaluate all rules at once, then count violations per rule.
+    rule_results = pd.DataFrame({name: fn(batch) for name, fn in active_rules.items()})
     batch_counts = {name: int(n) for name, n in (~rule_results).sum().items()}
     is_valid = rule_results.all(axis=1)
 
