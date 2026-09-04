@@ -6,6 +6,7 @@ select
     vendor_id,
     pickup_datetime::TIMESTAMP,
     dropoff_datetime::TIMESTAMP,
+    {{ dbt.datediff("pickup_datetime", "dropoff_datetime", "minute") }} AS trip_duration_minutes,
     passenger_count::INTEGER,
     trip_distance,
     rate_code_id,

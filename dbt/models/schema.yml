@@ -10,6 +10,7 @@ models:
       - name: temperature_2m
         tests:
           - not_null
+
   - name: stg_taxi_trips
     columns:
       - name: pickup_datetime
@@ -33,3 +34,53 @@ models:
         tests:
         - unique
         - not_null
+
+  - name: fact_trips
+    columns:
+      - name: payment_type_id
+        description: "Foreign key to the payment_type dimension table"
+        tests:
+        - not_null
+        - relationships:
+            arguments:
+              to: ref('dim_payment_type')
+              field: payment_type_id
+      - name: pickup_location_id
+        description: "Foreign key to the zone dimension table"
+        tests:
+        - not_null
+        - relationships:
+            arguments:
+              to: ref('dim_zone')
+              field: location_id
+      - name: dropoff_location_id
+        description: "Foreign key to the zone dimension table"
+        tests:
+        - not_null
+        - relationships:
+            arguments:
+              to: ref('dim_zone')
+              field: location_id
+
+  - name: fact_weather
+    columns:
+    - name: time
+      tests:
+        - not_null
+        - unique
+    - name: temperature_2m
+      tests:
+        - not_null
+    - name: precipitation
+      tests:
+        - not_null
+    - name: windspeed_10m
+      tests:
+        - not_null
+    - name: date_key
+      tests:
+        - not_null
+        - relationships:
+            arguments:
+              to: ref('dim_date')
+              field: date_key
