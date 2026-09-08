@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import pendulum
 from airflow.providers.standard.operators.bash import BashOperator
-from airflow.sdk import dag, task
+from airflow.sdk import Param, dag, task
 from airflow.timetables.interval import CronDataIntervalTimetable
 
 from nyc_mobility.common.db import get_connection
@@ -19,19 +19,33 @@ MIN_YEAR_MONTH = (2023, 1)
 
 
 def year_month(
-    data_interval_start: datetime | None, data_interval_end: datetime | None
+    params: dict | None,
+    data_interval_start: datetime | None,
+    data_interval_end: datetime | None,
 ) -> tuple[int, int]:
-    """Return the month a run owns: the last full month before its interval end."""
+    """Return the month this run processes.
 
-    if data_interval_start is None or data_interval_end is None:
-        raise ValueError("Run has no data interval - trigger with an explicit month.")
-    end_ny = data_interval_end.astimezone(DATA_TIMEZONE)
-    if data_interval_start == data_interval_end:
-        month_start = datetime(end_ny.year, end_ny.month, 1, tzinfo=DATA_TIMEZONE)
-        covered = month_start - timedelta(seconds=1)
+    Manual runs say it outright through params ({"year": 2023, "month": 1}):
+    integers carry no timezone, so no conversion can shift them. Scheduled
+    runs derive it from the interval end. The end is exclusive - one second
+    before it is the last covered instant, read in the data's timezone.
+    """
+    if params and params.get("year") is not None and params.get("month") is not None:
+        owned_month = (int(params["year"]), int(params["month"]))
     else:
-        covered = end_ny - timedelta(seconds=1)
-    owned_month = (covered.year, covered.month)
+        if data_interval_start is None or data_interval_end is None:
+            raise ValueError(
+                "No year/month params and no data interval. "
+                "Pass year and month in the trigger dialog config."
+            )
+        end_ny = data_interval_end.astimezone(DATA_TIMEZONE)
+        if data_interval_start == data_interval_end:
+            # zero-length tick run: month before the tick's calendar month
+            month_start = datetime(end_ny.year, end_ny.month, 1, tzinfo=DATA_TIMEZONE)
+            covered = month_start - timedelta(seconds=1)
+        else:
+            covered = end_ny - timedelta(seconds=1)
+        owned_month = (covered.year, covered.month)
     if owned_month < MIN_YEAR_MONTH:
         raise ValueError(
             f"This run covers {owned_month[0]}-{owned_month[1]:02d}, before the "
@@ -49,6 +63,14 @@ def year_month(
     start_date=datetime(2023, 1, 1, tzinfo=DATA_TIMEZONE),
     catchup=False,
     is_paused_upon_creation=True,
+    params={
+        "year": Param(
+            None, type=["null", "integer"], title="Target year, manual runs only"
+        ),
+        "month": Param(
+            None, type=["null", "integer"], title="Target month, manual runs only"
+        ),
+    },
     # default_args={
     #     "retries": 2,
     #     "retry_delay": timedelta(minutes=5),
@@ -63,42 +85,46 @@ def monthly_pipeline():
 
     @task
     def ingest_taxi(
+        params: dict | None = None,
         data_interval_start: datetime | None = None,
         data_interval_end: datetime | None = None,
     ):
         os.chdir(PROJECT_ROOT)
-        year, month = year_month(data_interval_start, data_interval_end)
+        year, month = year_month(params, data_interval_start, data_interval_end)
         with get_connection() as conn:
             with conn.cursor() as cur:
                 ingest_taxi_month(cur, year, month)
 
     @task
     def load_taxi(
+        params: dict | None = None,
         data_interval_start: datetime | None = None,
         data_interval_end: datetime | None = None,
     ):
         os.chdir(PROJECT_ROOT)
-        year, month = year_month(data_interval_start, data_interval_end)
+        year, month = year_month(params, data_interval_start, data_interval_end)
         load_taxi_data_idempotent(year, month)
 
     @task
     def ingest_weather(
+        params: dict | None = None,
         data_interval_start: datetime | None = None,
         data_interval_end: datetime | None = None,
     ):
         os.chdir(PROJECT_ROOT)
-        year, month = year_month(data_interval_start, data_interval_end)
+        year, month = year_month(params, data_interval_start, data_interval_end)
         with get_connection() as conn:
             with conn.cursor() as cur:
                 ingest_weather_month(cur, year, month)
 
     @task
     def load_weather(
+        params: dict | None = None,
         data_interval_start: datetime | None = None,
         data_interval_end: datetime | None = None,
     ):
         os.chdir(PROJECT_ROOT)
-        year, month = year_month(data_interval_start, data_interval_end)
+        year, month = year_month(params, data_interval_start, data_interval_end)
         load_weather_data_idempotent(year, month)
 
     # Each call creates a task instance - call once, reuse the handle.
