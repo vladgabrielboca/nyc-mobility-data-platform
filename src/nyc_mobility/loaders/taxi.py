@@ -76,6 +76,13 @@ def load_taxi_data_idempotent(year: int, month: int) -> None:
 
     with get_connection() as conn:
         with conn.cursor() as cur:
+            # Serialize same-month loads: two concurrent runs deadlock on DELETE.
+            # The lock releases when the transaction ends.
+            cur.execute(
+                "SELECT pg_advisory_xact_lock(hashtext(%s))",
+                (f"taxi_load:{year}:{month}",),
+            )
+
             print(
                 f"[LOG - Taxi] Cleaning old data for year = {year} and month = {month:02d}..."
             )
