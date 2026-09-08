@@ -140,8 +140,8 @@ data/quarantine/    rejected rows, same partitioning (gitignored)
 - [x] DE-005: backfill runner with failure isolation
 - [x] DE-006: dbt foundation, staging models, sources, data tests
 - [x] DE-007: core star schema with `fact_trips`, `fact_weather`, and dimensions
-- [ ] DE-008: data marts for the dashboard
-- [ ] Airflow orchestration of the monthly flow
+- [x] DE-008: data marts for the dashboard
+- [x] Airflow orchestration of the monthly flow
 - [ ] Power BI dashboard
 
 ## Data sources
