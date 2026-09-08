@@ -42,6 +42,12 @@ def load_weather_data_idempotent(year: int, month: int) -> None:
 
     with get_connection() as conn:
         with conn.cursor() as cur:
+            # Serialize same-month loads; releases when the transaction ends.
+            cur.execute(
+                "SELECT pg_advisory_xact_lock(hashtext(%s))",
+                (f"weather_load:{year}:{month}",),
+            )
+
             print(
                 f"[LOG - Weather] Cleaning old data for year = {year} and month = {month:02d}"
             )
