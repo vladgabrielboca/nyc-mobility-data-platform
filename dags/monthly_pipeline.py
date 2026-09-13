@@ -15,7 +15,7 @@ from nyc_mobility.loaders.weather import load_weather_data_idempotent
 PROJECT_ROOT = os.path.expanduser("~/Projects/nyc-mobility-data-platform")
 # pendulum timezone: the explicit timetable serializes with it; zoneinfo fails.
 DATA_TIMEZONE = pendulum.timezone("America/New_York")
-MIN_YEAR_MONTH = (2023, 1)
+MIN_YEAR_MONTH = (2022, 1)
 
 
 def year_month(
@@ -49,7 +49,7 @@ def year_month(
     if owned_month < MIN_YEAR_MONTH:
         raise ValueError(
             f"This run covers {owned_month[0]}-{owned_month[1]:02d}, before the "
-            f"data window starts at 2023-01. Pick the month explicitly in the "
+            f"data window starts at 2022-01. Pick the month explicitly in the "
             f"trigger dialog, or use a backfill for a range of months."
         )
     return owned_month
@@ -60,7 +60,7 @@ def year_month(
     # the run labeled M owns [M 1st -> M+1 1st)
     # and fires at the start of the next month, ingesting month M.
     schedule=CronDataIntervalTimetable("0 0 1 * *", DATA_TIMEZONE),
-    start_date=datetime(2023, 1, 1, tzinfo=DATA_TIMEZONE),
+    start_date=datetime(2022, 1, 1, tzinfo=DATA_TIMEZONE),
     catchup=False,
     is_paused_upon_creation=True,
     params={

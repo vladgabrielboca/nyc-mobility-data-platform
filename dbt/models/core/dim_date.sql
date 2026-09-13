@@ -4,7 +4,7 @@ with date_spine as (
     select
         cast(generated_date as date) as date_day
     from generate_series(
-        '2023-01-01'::date,
+        '2022-01-01'::date,
         '2030-12-31'::date,
         interval '1 day'
     ) as generated_date
