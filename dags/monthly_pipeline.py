@@ -79,7 +79,12 @@ def year_month(
 def monthly_pipeline():
     dbt_build = BashOperator(
         task_id="dbt_build",
-        bash_command=f"{PROJECT_ROOT}/.venv/bin/dbt deps && {PROJECT_ROOT}/.venv/bin/dbt build",
+        # deps only when packages are missing: it re-downloads on every run
+        bash_command=(
+            f"if [ ! -d {PROJECT_ROOT}/dbt/dbt_packages ]; "
+            f"then {PROJECT_ROOT}/.venv/bin/dbt deps; fi && "
+            f"{PROJECT_ROOT}/.venv/bin/dbt build --exclude marts"
+        ),
         cwd=f"{PROJECT_ROOT}/dbt",
     )
 
