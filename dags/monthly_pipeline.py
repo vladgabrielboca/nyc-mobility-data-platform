@@ -142,7 +142,7 @@ def monthly_pipeline():
                     DELETE FROM raw.yellow_taxi_trips
                     WHERE source_year = %s AND source_month = %s;
                     """,
-                    (year, month)
+                    (year, month),
                 )
 
     # Each call creates a task instance - call once, reuse the handle.
