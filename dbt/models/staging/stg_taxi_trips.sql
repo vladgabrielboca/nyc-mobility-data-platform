@@ -3,6 +3,7 @@ with source_data as (
 )
 
 select
+    md5(vendor_id || '-' || pickup_datetime) as trip_id,
     vendor_id,
     pickup_datetime::TIMESTAMP,
     dropoff_datetime::TIMESTAMP,

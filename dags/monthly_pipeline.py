@@ -127,15 +127,35 @@ def monthly_pipeline():
         year, month = year_month(params, data_interval_start, data_interval_end)
         load_weather_data_idempotent(year, month)
 
+    @task
+    def cleanup_raw(
+        params: dict | None = None,
+        data_interval_start: datetime | None = None,
+        data_interval_end: datetime | None = None,
+    ):
+        os.chdir(PROJECT_ROOT)
+        year, month = year_month(params, data_interval_start, data_interval_end)
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    DELETE FROM raw.yellow_taxi_trips
+                    WHERE source_year = %s AND source_month = %s;
+                    """,
+                    (year, month),
+                )
+
     # Each call creates a task instance - call once, reuse the handle.
     t_ingest_taxi = ingest_taxi()
     t_ingest_weather = ingest_weather()
     t_load_taxi = load_taxi()
     t_load_weather = load_weather()
+    t_cleanup = cleanup_raw()
 
     t_ingest_taxi >> t_load_taxi
     t_ingest_weather >> t_load_weather
     [t_load_taxi, t_load_weather] >> dbt_build
+    dbt_build >> t_cleanup
 
 
 monthly_pipeline()
