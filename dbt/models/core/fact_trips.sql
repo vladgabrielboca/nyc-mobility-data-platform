@@ -1,4 +1,13 @@
+{{
+    config(
+        materialized='incremental',
+        incremental_strategy='delete+insert',
+        unique_key=['source_year', 'source_month']
+    )
+}}
+
 select
+    trip_id,
     vendor_id,
     pickup_datetime,
     dropoff_datetime,
@@ -22,3 +31,10 @@ select
     source_month
 
 from {{ ref('stg_taxi_trips') }}
+
+{% if is_incremental() %}
+    where (source_year, source_month) not in (
+        select distinct source_year, source_month
+        from {{ this }}
+    )
+{% endif %}
