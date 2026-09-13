@@ -1,17 +1,12 @@
-with payment_codes as (
-    select distinct payment_type
-    from {{ ref('stg_taxi_trips') }}
+with payment_codes (payment_type_id, payment_type_name) as (
+    values
+        (0, 'Unknown'),
+        (1, 'Credit card'),
+        (2, 'Cash'),
+        (3, 'No charge'),
+        (4, 'Dispute'),
+        (5, 'Unknown'),
+        (6, 'Voided')
 )
 
-select
-    payment_type as payment_type_id,
-    case payment_type
-        when 1 then 'Credit card'
-        when 2 then 'Cash'
-        when 3 then 'No charge'
-        when 4 then 'Dispute'
-        when 5 then 'Unknown'
-        when 6 then 'Voided'
-        else 'Unknown'
-    end as payment_type_name
-from payment_codes
+select payment_type_id, payment_type_name from payment_codes
