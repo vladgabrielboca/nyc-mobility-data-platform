@@ -83,7 +83,7 @@ def monthly_pipeline():
         bash_command=(
             f"if [ ! -d {PROJECT_ROOT}/dbt/dbt_packages ]; "
             f"then {PROJECT_ROOT}/.venv/bin/dbt deps; fi && "
-            f"{PROJECT_ROOT}/.venv/bin/dbt build --exclude marts"
+            f"{PROJECT_ROOT}/.venv/bin/dbt build"
         ),
         cwd=f"{PROJECT_ROOT}/dbt",
     )
