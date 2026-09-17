@@ -6,6 +6,7 @@ from nyc_mobility.common.db import get_connection_string
 
 OUTPUT_DIR = "data/export"
 
+
 def export_marts():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
