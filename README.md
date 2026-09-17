@@ -34,12 +34,12 @@ A monthly run, in order:
 - **Idempotent months.** A partial unique index in the manifest allows only one successful ingestion per source and month. Loads replace their month before they write.
 - **Logical types in contracts.** TLC publishes `VendorID` as `int64` in January and `int32` in February, and both pass because they are the same type family. A missing column, or a string where a number belongs, still fails.
 - **Rejected rows stay on disk.** Around four percent of trip rows violate a rule. They sit under `data/quarantine/` with the same partitioning as raw, so the evidence for a rejection is still there months later.
-- **One connection per month.** A failure in February affects February alone, and March starts clean. Airflow will later map one month to one task.
+- **One connection per month.** A failure in February affects February alone, and March starts clean. Airflow maps one month to one DAG run.
 - **Natural date keys.** Both facts carry plain dates that join `dim_date` directly. A shared key is what lets the demand-versus-weather mart join them.
 
 ## By the numbers
 
-January to March 2023: the source files hold 9,384,487 trip rows. Five taxi rules quarantined 359,448 of them, and 9,025,039 trips landed in `fact_trips`. `fact_weather` holds 2,160 hourly records, one per hour of the period.
+January 2022 to December 2025, 48 months: the source files hold 167,858,646 trip rows. Five taxi rules quarantined 10,360,235 of them, and 157,991,894 trips landed in `fact_trips`. `fact_weather` holds 35,064 hourly records for the same window, one per hour. The route mart compresses those trips into 58,173 routes.
 
 ## Warehouse layout
 
@@ -47,13 +47,13 @@ January to March 2023: the source files hold 9,384,487 trip rows. Five taxi rule
 raw        landing zone: taxi trips and hourly weather, as the source sent them
 staging    renaming, casting, derived columns        (dbt views)
 core       star schema: two facts, three dimensions  (dbt tables)
-marts      aggregates for the dashboard              (dbt, planned)
+marts      aggregates for the dashboard              (dbt tables)
 ops        the platform's own memory: manifest, pipeline runs, quality results
 ```
 
 ## Stack
 
-Python 3.11, psycopg, PyArrow and pandas, PostgreSQL 17 in Docker Compose, dbt Core, pytest, Ruff, and GitHub Actions. Airflow and Power BI are next.
+Python 3.11, psycopg, PyArrow and pandas, DuckDB, PostgreSQL 17 in Docker Compose, dbt Core, Apache Airflow 3, pytest, Ruff, and GitHub Actions. Power BI is next.
 
 ## Getting started
 
@@ -147,6 +147,11 @@ data/export/        parquet snapshots of the marts, one file per mart (gitignore
 - [x] DE-007: core star schema with `fact_trips`, `fact_weather`, and dimensions
 - [x] DE-008: data marts for the dashboard
 - [x] Airflow orchestration of the monthly flow
+- [x] DE-009: window widened, data starts at 2022-01
+- [x] DE-010: date spine and DAG guard extended to 2022
+- [x] DE-011: incremental `fact_trips`, raw as a landing zone with per-month cleanup
+- [x] DE-012: four-year backfill, 2022-01 to 2025-12
+- [x] DE-013: DuckDB export of every mart to parquet, wired into the DAG
 - [ ] Power BI dashboard
 
 ## Data sources
