@@ -3,20 +3,26 @@ import os
 import psycopg
 from dotenv import load_dotenv
 
+load_dotenv()
+
 
 def get_connection() -> psycopg.Connection:
     """Return a psycopg connection using settings from the postgres container environment variables."""
-
-    load_dotenv()
-
-    db_user = os.environ.get("POSTGRES_USER")
-    db_password = os.environ.get("POSTGRES_PASSWORD")
-    db_name = os.environ.get("POSTGRES_DB")
-    db_host = os.environ.get("POSTGRES_HOST")
-    db_port = os.environ.get("POSTGRES_PORT")
-
-    connection = psycopg.connect(
-        user=db_user, password=db_password, dbname=db_name, host=db_host, port=db_port
+    return psycopg.connect(
+        user=os.environ.get("POSTGRES_USER"),
+        password=os.environ.get("POSTGRES_PASSWORD"),
+        dbname=os.environ.get("POSTGRES_DB"),
+        host=os.environ.get("POSTGRES_HOST"),
+        port=os.environ.get("POSTGRES_PORT"),
     )
 
-    return connection
+
+def get_connection_string() -> str:
+    """Return a libpq connection string for DuckDB's postgres scanner."""
+    user = os.environ.get("POSTGRES_USER")
+    password = os.environ.get("POSTGRES_PASSWORD")
+    db = os.environ.get("POSTGRES_DB")
+    host = os.environ.get("POSTGRES_HOST")
+    port = os.environ.get("POSTGRES_PORT")
+
+    return f"dbname={db} user={user} password={password} host={host} port={port}"

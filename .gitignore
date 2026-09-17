@@ -28,3 +28,5 @@ Thumbs.db
 data/raw/
 data/processed/
 data/quarantine/
+
+data/export/

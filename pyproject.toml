@@ -15,6 +15,7 @@ dependencies = [
     "pandas",
     "python-dotenv",
     "jsonschema",
+    "duckdb"
 ]
 
 [tool.pytest.ini_options]

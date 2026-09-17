@@ -7,6 +7,7 @@ from airflow.sdk import Param, dag, task
 from airflow.timetables.interval import CronDataIntervalTimetable
 
 from nyc_mobility.common.db import get_connection
+from nyc_mobility.export.marts import export_marts
 from nyc_mobility.ingestion.taxi import ingest_taxi_month
 from nyc_mobility.ingestion.weather import ingest_weather_month
 from nyc_mobility.loaders.taxi import load_taxi_data_idempotent
@@ -150,17 +151,23 @@ def monthly_pipeline():
                     (year, month),
                 )
 
+    @task
+    def export_marts_task():
+        os.chdir(PROJECT_ROOT)
+        export_marts()
+
     # Each call creates a task instance - call once, reuse the handle.
     t_ingest_taxi = ingest_taxi()
     t_ingest_weather = ingest_weather()
     t_load_taxi = load_taxi()
     t_load_weather = load_weather()
     t_cleanup = cleanup_raw()
+    t_export_marts = export_marts_task()
 
     t_ingest_taxi >> t_load_taxi
     t_ingest_weather >> t_load_weather
     [t_load_taxi, t_load_weather] >> dbt_build
-    dbt_build >> t_cleanup
+    dbt_build >> [t_cleanup, t_export_marts]
 
 
 monthly_pipeline()

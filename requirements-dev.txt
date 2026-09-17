@@ -9,3 +9,4 @@ pandas
 jsonschema
 dbt-core
 dbt-postgres
+duckdb
