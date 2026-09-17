@@ -120,15 +120,20 @@ src/nyc_mobility/
     loaders/        row-group streaming loads with the quality filter and quarantine
     validation/     data contracts and named quality rules
     orchestration/  the monthly pipeline and the backfill runner
+    export/         DuckDB export of every mart to parquet for the dashboard
+dags/               Airflow DAG: monthly schedule, per-month tasks, cleanup, export
 dbt/
     models/staging/ one view per source: renaming, casting, derivations
     models/core/    fact_trips, fact_weather, dim_date, dim_zone, dim_payment_type
+    models/marts/   dashboard aggregates: KPIs, zone, route, demand-vs-weather
+    macros/         schema naming
     seeds/          taxi zone lookup
 infra/sql/          schemas and tables, applied on first database boot
 ci/                 test fixture generation for CI
-tests/              unit tests for validation, ingestion, and loaders
+tests/              unit tests for validation, ingestion, loaders, and exports
 data/raw/           downloaded source files, partitioned by year and month (gitignored)
 data/quarantine/    rejected rows, same partitioning (gitignored)
+data/export/        parquet snapshots of the marts, one file per mart (gitignored)
 ```
 
 ## Roadmap
