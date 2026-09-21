@@ -53,7 +53,7 @@ ops        the platform's own memory: manifest, pipeline runs, quality results
 
 ## Stack
 
-Python 3.11, psycopg, PyArrow and pandas, DuckDB, PostgreSQL 17 in Docker Compose, dbt Core, Apache Airflow 3, pytest, Ruff, and GitHub Actions. Power BI is next.
+Python 3.11, psycopg, PyArrow and pandas, DuckDB, PostgreSQL 17 in Docker Compose, dbt Core, Apache Airflow 3, Power BI, pytest, Ruff, and GitHub Actions. Cloud deployment is next.
 
 ## Getting started
 
@@ -152,7 +152,20 @@ data/export/        parquet snapshots of the marts, one file per mart (gitignore
 - [x] DE-011: incremental `fact_trips`, raw as a landing zone with per-month cleanup
 - [x] DE-012: four-year backfill, 2022-01 to 2025-12
 - [x] DE-013: DuckDB export of every mart to parquet, wired into the DAG
-- [ ] Power BI dashboard
+- [x] Power BI dashboard on the exported marts
+- [ ] Cloud deployment: S3 archive, RDS Postgres, Airflow pointed at the cloud
+
+## Dashboard
+
+The marts export as parquet and feed a Power BI model, refreshed per month.
+
+![Overview: KPIs, revenue and trips by month, duration vs distance by year](docs/screenshots/overview.png)
+
+![Zones: busiest pickup zones, revenue share by borough](docs/screenshots/zones.png)
+
+![Routes: top corridors, borough-to-borough flow matrix](docs/screenshots/routes.png)
+
+![Demand: hour-of-week intensity, 24-hour profile, demand vs rainfall](docs/screenshots/demand-weather.png)
 
 ## Data sources
 
